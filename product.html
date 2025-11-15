@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Produit — MonCosmetics</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <a class="skip-link" href="#main">Passer au contenu</a>
+  <header class="header" id="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">MonCosmetics</a>
+      <nav class="nav"><a href="index.html#products">Produits</a><a href="#contact">Contact</a></nav>
+      <div class="actions"><button id="cart-toggle">Panier (<span id="cart-count">0</span>)</button></div>
+    </div>
+  </header>
+
+  <main id="main" class="container product-page">
+    <div id="product-root" class="product-root">Chargement du produit…</div>
+  </main>
+
+  <footer id="contact" class="footer">
+    <div class="container">© <span id="year"></span> MonCosmetics</div>
+  </footer>
+
+  <script src="products.js"></script>
+  <script src="cart.js"></script>
+  <script>
+  (function(){
+    // helper: read ?id=..
+    function q(name){ const url=new URL(location.href); return url.searchParams.get(name); }
+    const id = q('id');
+    const root = document.getElementById('product-root');
+    if(!window.PRODUCTS){ root.innerHTML='<p class="muted">Catalogue introuvable.</p>'; return }
+    const p = PRODUCTS.find(x=>x.id===id);
+    if(!p){ root.innerHTML='<p class="muted">Produit non trouvé.</p>'; return }
+    document.title = p.title + ' — MonCosmetics';
+
+    // Breadcrumb
+    const breadcrumb = document.createElement('nav'); breadcrumb.className='breadcrumbs'; breadcrumb.innerHTML = `<a href="index.html">Accueil</a> › <a href="index.html#products">Produits</a> › <span>${p.title}</span>`;
+
+    // New layout inspired by maccosmetics: vertical thumbs + large image + sticky buy panel
+    const el = document.createElement('div'); el.className='product-card mac-style';
+    el.innerHTML = `
+      <div class="left-col">
+        <div class="thumb-rail" id="thumbs"></div>
+      </div>
+      <div class="center-col">
+        <div class="main-media">
+          <button class="carousel-btn prev" aria-label="Image précédente">‹</button>
+          <img id="main-img" src="${p.img}" alt="${p.title}" loading="lazy">
+          <button class="carousel-btn next" aria-label="Image suivante">›</button>
+        </div>
+        <div class="tabs" id="product-tabs">
+          <button class="tab active" data-panel="desc">Description</button>
+          <button class="tab" data-panel="details">Détails</button>
+          <button class="tab" data-panel="how">Utilisation</button>
+          <button class="tab" data-panel="reviews">Avis</button>
+        </div>
+        <div class="tab-panels">
+          <div id="desc" class="panel active">
+            <h3>À propos</h3>
+            <p class="muted">${p.desc}</p>
+            <h4>Avantages</h4>
+            <ul class="benefits">${(p.benefits||[]).map(b=>`<li class="benefit">${b}</li>`).join('')}</ul>
+          </div>
+          <div id="details" class="panel">
+            <h3>Ingrédients & Détails</h3>
+            <p class="muted">Informations produit détaillées et ingrédients (ex: ingrédients clés listés ici).</p>
+          </div>
+          <div id="how" class="panel">
+            <h3>Comment l'utiliser</h3>
+            <p class="muted">Appliquer matin et soir sur peau propre. Conseils d'application.</p>
+          </div>
+          <div id="reviews" class="panel">
+            <h3>Avis</h3>
+            <p class="muted">Aucun avis pour le moment — soyez le premier à laisser un avis.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="right-col">
+        <div class="buy-panel" id="buy-panel">
+          <div class="product-meta polished">
+            <h1 class="p-title">${p.title}</h1>
+            <div class="rating">
+              <div class="stars" aria-hidden="true">★★★★★</div>
+              <div class="rating-meta"><span class="rating-value">${p.rating ? p.rating.toFixed(1) : '—'}</span> · <span class="rating-count">${p.reviews || 0} avis</span></div>
+            </div>
+            <p class="tagline highlight">${p.tagline||''}</p>
+            <div class="slogan">Faites le bon choix pour vous</div>
+            <div class="price big">${p.price.toFixed(2)} €</div>
+            <div class="stock">Disponibilité: <span class="in-stock">En stock</span></div>
+            <div class="badges">${(p.tags||[]).map(t=>`<span class="badge">${t}</span>`).join(' ')}</div>
+          </div>
+          <div class="options">
+            <label for="qty">Quantité</label>
+            <div class="qty-control"><button class="qty-btn" id="qty-dec">−</button><input id="qty" type="number" value="1" min="1" max="99"><button class="qty-btn" id="qty-inc">+</button></div>
+          </div>
+          <div class="cta polished-cta">
+            <button id="add-cart" class="btn large bright">Ajouter au panier</button>
+            <button id="wishlist" class="btn ghost">Ajouter à la liste</button>
+          </div>
+          <div class="add-note" id="add-note" aria-hidden="true">✔ Ajouté au panier</div>
+          <div class="delivery"><strong>Livraison :</strong> Expédition sous 24h. Retours 30 jours.</div>
+          <div class="trust"><span class="trust-badge">✔ Paiement sécurisé</span> <span class="trust-badge">↺ Retours 30j</span></div>
+          ${(p.testimonial?`<div class="testimonial"><blockquote>“${p.testimonial}”</blockquote></div>`:'')}
+        </div>
+      </aside>
+    `;
+
+  root.innerHTML=''; root.appendChild(breadcrumb); root.appendChild(el);
+
+    // gallery + carousel
+    const thumbsRoot = document.getElementById('thumbs');
+    const images = (p.images && p.images.length) ? p.images : [p.img];
+    let currentIndex = 0;
+    const mainImg = document.getElementById('main-img');
+    function showImage(i){ currentIndex = (i + images.length) % images.length; mainImg.src = images[currentIndex]; // update selected thumb style
+      Array.from(thumbsRoot.querySelectorAll('.thumb')).forEach((b, idx)=> b.classList.toggle('active', idx===currentIndex));
+    }
+    images.forEach((src, i) => {
+      const t = document.createElement('button'); t.className='thumb'; t.setAttribute('aria-label','Voir l\'image '+(i+1)); t.innerHTML = `<img src="${src}" alt="${p.title} image ${i+1}">`; t.addEventListener('click', ()=>{ showImage(i); }); thumbsRoot.appendChild(t);
+    });
+    showImage(0);
+    // carousel arrows
+    const prevBtn = document.querySelector('.carousel-btn.prev');
+    const nextBtn = document.querySelector('.carousel-btn.next');
+    prevBtn && prevBtn.addEventListener('click', ()=> showImage(currentIndex-1));
+    nextBtn && nextBtn.addEventListener('click', ()=> showImage(currentIndex+1));
+    // basic swipe support
+    (function(){
+      let startX = null;
+      mainImg.addEventListener('pointerdown', e=>{ startX = e.clientX; mainImg.setPointerCapture(e.pointerId); });
+      mainImg.addEventListener('pointerup', e=>{ if(startX==null) return; const dx = e.clientX - startX; if(Math.abs(dx) > 30){ if(dx < 0) showImage(currentIndex+1); else showImage(currentIndex-1); } startX = null; });
+    })();
+
+    // quantity controls
+    const qtyInput = document.getElementById('qty'); document.getElementById('qty-inc').addEventListener('click', ()=>{ qtyInput.value = Math.min(99, Number(qtyInput.value||1)+1); }); document.getElementById('qty-dec').addEventListener('click', ()=>{ qtyInput.value = Math.max(1, Number(qtyInput.value||1)-1); });
+
+    // add to cart with microinteraction
+    document.getElementById('add-cart').addEventListener('click', ()=>{
+      const q = Number(qtyInput.value||1);
+      const btn = document.getElementById('add-cart');
+      const note = document.getElementById('add-note');
+      if(window.addToCart) {
+        addToCart(p.id, q);
+        // visual confirmation
+        btn.classList.add('added');
+        note.setAttribute('aria-hidden','false'); note.classList.add('show');
+        setTimeout(()=>{ note.classList.remove('show'); note.setAttribute('aria-hidden','true'); }, 1800);
+        setTimeout(()=> btn.classList.remove('added'), 1200);
+      } else {
+        alert('Panier non disponible');
+      }
+    });
+
+    // tabs with ARIA and keyboard navigation
+    const tabButtons = Array.from(document.querySelectorAll('.tab'));
+    const panels = Array.from(document.querySelectorAll('.panel'));
+    const tablist = document.getElementById('product-tabs'); if(tablist) tablist.setAttribute('role','tablist');
+    tabButtons.forEach((btn, idx)=>{
+      btn.setAttribute('role','tab');
+      btn.setAttribute('tabindex', idx===0 ? '0' : '-1');
+      btn.setAttribute('aria-selected', idx===0 ? 'true' : 'false');
+      btn.setAttribute('aria-controls', btn.dataset.panel);
+      btn.addEventListener('click', e=>{
+        tabButtons.forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-selected','false'); b.setAttribute('tabindex','-1'); });
+        panels.forEach(pn=>pn.classList.remove('active'));
+        btn.classList.add('active'); btn.setAttribute('aria-selected','true'); btn.setAttribute('tabindex','0');
+        document.getElementById(btn.dataset.panel).classList.add('active');
+      });
+      btn.addEventListener('keydown', e=>{
+        if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+          const dir = e.key === 'ArrowRight' ? 1 : -1;
+          let next = (idx + dir + tabButtons.length) % tabButtons.length;
+          tabButtons[next].focus();
+        } else if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); btn.click(); }
+      });
+    });
+    panels.forEach(p=>{ p.setAttribute('role','tabpanel'); p.setAttribute('tabindex','0'); });
+
+  // related products removed per request
+
+    // update footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+  })();
+  </script>
+  <script>
+  // sticky header shadow + reveal-on-scroll (product page)
+  (function(){
+    const header = document.getElementById('site-header') || document.querySelector('.header');
+    function onScroll(){ if(!header) return; if(window.scrollY>12) header.classList.add('scrolled'); else header.classList.remove('scrolled'); }
+    window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('show'); obs.unobserve(e.target); } });
+    }, {threshold: 0.12});
+    const selectors = ['.center-col .main-media','.buy-panel','.thumb-rail','.tabs','.testimonial'];
+    selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => { if(!el.classList.contains('reveal')) el.classList.add('reveal'); io.observe(el); }));
+  })();
+  </script>
+</body>
+</html>
