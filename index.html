@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MonCosmetics — Boutique</title>
+  <meta name="description" content="Boutique de cosmétiques : soins, maquillage et cheveux — produits sélectionnés pour votre routine beauté.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" as="style">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" as="style">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Passer au contenu</a>
+  <header class="header" id="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">MonCosmetics</a>
+      <div class="header-center">
+        <form class="search" role="search" onsubmit="return false;">
+          <input id="search-input" aria-label="Rechercher des produits" placeholder="Rechercher (ex: sérum, rouge à lèvres)...">
+        </form>
+        <nav class="nav"><a href="#products">Produits</a><a href="#contact">Contact</a></nav>
+      </div>
+      <div class="actions"><button class="icon-btn" title="Compte">Compte</button><button id="cart-toggle" class="icon-btn">Panier (<span id="cart-count">0</span>)</button></div>
+    </div>
+  </header>
+  <main id="main" class="container">
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <h1>Soins & Beauté</h1>
+          <p class="lead">Des cosmétiques soigneusement sélectionnés pour votre routine. Qualité, transparence et efficacité.</p>
+          <p class="hero-ctas"><a class="btn large" href="#products">Voir les produits</a> <a class="btn ghost" href="#contact">Contact</a></p>
+        </div>
+  <div class="hero-image" aria-hidden="true"></div>
+      </div>
+    </section>
+    
+      <!-- Testimonials -->
+      <section class="testimonials-section container">
+        <div class="testimonial-card reveal">
+          <blockquote>«J'ai retrouvé une peau éclatante après 2 semaines d'utilisation.»</blockquote>
+          <span class="author">— Camille</span>
+        </div>
+        <div class="testimonial-card reveal">
+          <blockquote>«Texture légère et résultat visible — adore !»</blockquote>
+          <span class="author">— Yara</span>
+        </div>
+        <div class="testimonial-card reveal">
+          <blockquote>«Livraison rapide et service très professionnel.»</blockquote>
+          <span class="author">— Farah</span>
+        </div>
+      </section>
+
+      <!-- Newsletter -->
+      <section class="container" style="margin-top:1.25rem">
+        <div class="newsletter reveal">
+          <div><strong>Inscrivez-vous à la newsletter</strong><div class="muted">Recevez 10% sur votre première commande</div></div>
+          <input aria-label="Votre email" placeholder="Votre email">
+          <button class="btn">S'inscrire</button>
+        </div>
+      </section>
+    <div class="store-grid">
+      <aside class="filters">
+        <h3>Catégories</h3>
+        <ul>
+          <li><a href="#" class="cat-link" data-cat="All">Tous</a></li>
+          <li><a href="#" class="cat-link" data-cat="Soins">Soins</a></li>
+          <li><a href="#" class="cat-link" data-cat="Maquillage">Maquillage</a></li>
+          <li><a href="#" class="cat-link" data-cat="Cheveux">Cheveux</a></li>
+        </ul>
+      </aside>
+      <section id="products" class="products">
+        <!-- produits par products.js -->
+      </section>
+    </div>
+  </main>
+  <footer id="contact" class="footer">
+    <div class="container">© <span id="year"></span> MonCosmetics</div>
+  </footer>
+  <div id="quickview-modal" class="quickview" aria-hidden="true">
+    <div class="quick-panel">
+      <button class="q-close" aria-label="Fermer">×</button>
+      <div class="q-grid">
+        <div class="q-media"><img id="q-img" src="" alt=""></div>
+        <div class="q-info">
+          <h3 id="q-title"></h3>
+          <p class="tagline" id="q-tagline"></p>
+          <div class="price" id="q-price"></div>
+          <p class="muted" id="q-desc"></p>
+          <h4>Avantages</h4>
+          <ul id="q-benefits" class="benefits"></ul>
+          <div class="product-actions"><button id="q-add" class="btn">Ajouter</button><a id="q-full" class="btn ghost" href="#">Voir le produit</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cart-modal" class="cart-modal" aria-hidden="true"><div class="cart-panel"><h3>Panier</h3><div id="cart-items"></div><div class="cart-footer"><div>Total: <strong id="cart-total">0.00</strong> €</div><div><button id="cart-clear" class="btn">Vider</button><button id="cart-close" class="btn">Fermer</button></div></div></div></div>
+  <div id="toast" class="toast" aria-live="polite"></div>
+  <div id="cart-announcer" class="sr-only" aria-live="polite"></div>
+  <script src="products.js"></script>
+  <script src="cart.js"></script>
+  <script>
+// render
+  (function(){
+  const container = document.getElementById('products');
+  if(!container || !window.PRODUCTS){ container.innerHTML = '<p class="muted">Produits indisponibles</p>'; return }
+  function build(items){ container.innerHTML=''; const grid=document.createElement('div'); grid.className='cards'; items.forEach(p=>{ const card=document.createElement('article'); card.className='card'; card.innerHTML=`<div class="card-media"><img src="${p.img}" alt="${p.title}" loading="lazy"><div class="card-overlay"><button class="btn quick" data-id="${p.id}">Aperçu</button><button class="btn add" data-id="${p.id}">Ajouter</button><a class="btn ghost" href="product.html?id=${p.id}">Voir</a></div></div><div class="card-body"><h3>${p.title}</h3><p class="tagline">${p.tagline||''}</p><p class="muted">${p.desc.length>100 ? p.desc.slice(0,100)+'…' : p.desc}</p><div class="row"><div class="price">${p.price.toFixed(2)} €</div></div></div>`; grid.appendChild(card); }); container.appendChild(grid);
+    // inject badges if present
+    document.querySelectorAll('.card').forEach((card, idx)=>{
+      const p = items[idx];
+      if(p && p.tags && p.tags.length){
+        const body = card.querySelector('.card-body');
+        const wrapper = document.createElement('div'); wrapper.className='card-badges'; wrapper.innerHTML = (p.tags||[]).map(t=>`<span class="badge ${t==='nouveau'?'new':t==='promo'?'promo':t==='bestseller'?'bestseller':''}">${t}</span>`).join(' ');
+        body.insertBefore(wrapper, body.firstChild);
+      }
+    });
+    // add handlers
+    document.querySelectorAll('.add').forEach(b=>b.addEventListener('click',e=>{ if(window.addToCart) addToCart(e.currentTarget.dataset.id,1) }));
+    document.querySelectorAll('.quick').forEach(b=>b.addEventListener('click',e=>{ openQuickView(e.currentTarget.dataset.id); }));
+  }
+  build(PRODUCTS);
+  // live search
+  const searchInput = document.getElementById('search-input');
+  if(searchInput){
+    searchInput.addEventListener('input', function(e){
+      const q = (e.target.value || '').trim().toLowerCase();
+      if(!q) return build(PRODUCTS);
+      const filtered = PRODUCTS.filter(p=> (p.title + ' ' + (p.tagline||'') + ' ' + (p.tags||[]).join(' ') + ' ' + p.desc).toLowerCase().includes(q));
+      build(filtered);
+    });
+  }
+  document.querySelectorAll('.cat-link').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); document.querySelectorAll('.cat-link').forEach(x=>x.classList.remove('active')); a.classList.add('active'); const cat=a.dataset.cat; if(cat==='All') build(PRODUCTS); else build(PRODUCTS.filter(p=>p.category===cat)); }));
+})();
+// footer year
+document.getElementById('year').textContent=new Date().getFullYear();
+
+// quick view logic
+function openQuickView(id){ const p = window.PRODUCTS && PRODUCTS.find(x=>x.id===id); if(!p) return; document.getElementById('q-img').src = p.img; document.getElementById('q-img').alt = p.title; document.getElementById('q-title').textContent = p.title; document.getElementById('q-tagline').textContent = p.tagline || ''; document.getElementById('q-price').textContent = p.price.toFixed(2) + ' €'; document.getElementById('q-desc').textContent = p.desc; const b = document.getElementById('q-benefits'); b.innerHTML = (p.benefits || []).map(x=>`<li class="benefit">${x}</li>`).join(''); document.getElementById('q-full').href = 'product.html?id='+p.id; document.getElementById('q-add').dataset.id = p.id; document.getElementById('quickview-modal').classList.add('open'); document.getElementById('quickview-modal').setAttribute('aria-hidden','false'); document.getElementById('q-add').focus(); }
+function openQuickView(id){ const p = window.PRODUCTS && PRODUCTS.find(x=>x.id===id); if(!p) return; const qimg = document.getElementById('q-img'); qimg.src = p.img; qimg.alt = p.title; qimg.setAttribute('loading','lazy'); document.getElementById('q-title').textContent = p.title; document.getElementById('q-tagline').textContent = p.tagline || ''; document.getElementById('q-price').textContent = p.price.toFixed(2) + ' €'; document.getElementById('q-desc').textContent = p.desc; const b = document.getElementById('q-benefits'); b.innerHTML = (p.benefits || []).map(x=>`<li class="benefit">${x}</li>`).join(''); document.getElementById('q-full').href = 'product.html?id='+p.id; document.getElementById('q-add').dataset.id = p.id; const qmodal = document.getElementById('quickview-modal'); qmodal.classList.add('open'); qmodal.setAttribute('aria-hidden','false');
+  // simple focus trap for quickview
+  const focusable = qmodal.querySelectorAll('button, [href], input, textarea, select'); const first = focusable[0]; const last = focusable[focusable.length-1]; const prevFocus = document.activeElement;
+  function trap(e){ if(e.key === 'Tab'){ if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); } } }
+  qmodal.__trap = trap; document.addEventListener('keydown', trap);
+  qmodal.__prevFocus = prevFocus;
+  first && first.focus(); }
+document.addEventListener('click', function(e){ if(e.target && e.target.id==='q-add'){ const id = e.target.dataset.id; if(window.addToCart) addToCart(id,1); showToast('Produit ajouté au panier'); } if(e.target && e.target.classList.contains('q-close')){ document.getElementById('quickview-modal').classList.remove('open'); document.getElementById('quickview-modal').setAttribute('aria-hidden','true'); } });
+// close quickview/cart with Escape and click-on-backdrop
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ const qmodal = document.getElementById('quickview-modal'); if(qmodal && qmodal.classList.contains('open')){ qmodal.classList.remove('open'); qmodal.setAttribute('aria-hidden','true'); }
+  const cmodal = document.getElementById('cart-modal'); if(cmodal && cmodal.getAttribute('aria-hidden')==='false'){ cmodal.setAttribute('aria-hidden','true'); cmodal.classList.remove('open'); }
+}});
+const qmodalEl = document.getElementById('quickview-modal'); if(qmodalEl){ qmodalEl.addEventListener('click', function(e){ if(e.target === qmodalEl){ qmodalEl.classList.remove('open'); qmodalEl.setAttribute('aria-hidden','true'); } }); }
+// remove focus trap when quickview closes
+document.addEventListener('click', function(e){ if(e.target && e.target.classList && e.target.classList.contains('q-close')){ const qmodal = document.getElementById('quickview-modal'); if(qmodal && qmodal.__trap){ document.removeEventListener('keydown', qmodal.__trap); try{ qmodal.__prevFocus && qmodal.__prevFocus.focus(); }catch(e){} qmodal.__trap = null; qmodal.__prevFocus = null; } } });
+  </script>
+  <script>
+  // sticky header shadow + reveal-on-scroll animations
+  (function(){
+    const header = document.getElementById('site-header') || document.querySelector('.header');
+    function onScroll(){ if(!header) return; if(window.scrollY>12) header.classList.add('scrolled'); else header.classList.remove('scrolled'); }
+    window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+    // reveal observer for nice fade/zoom-on-scroll
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('show'); obs.unobserve(e.target); } });
+    }, {threshold: 0.12});
+
+    const selectors = ['.hero-inner','.filters','.card','.product-card','.testimonial-card','.newsletter'];
+    selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => { if(!el.classList.contains('reveal')) el.classList.add('reveal'); io.observe(el); }));
+  })();
+  </script>
+</body>
+</html>
